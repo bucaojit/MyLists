@@ -9,9 +9,16 @@ class ListAccessObject(object):
         def find_items(self):
                 l = []
                 for each_item in self.myitems.find():
-                        l.append({'item':each_item['item'], 'list':each_item['list']})
+                        print each_item
+                        l.append({'item':each_item['item'], \
+                                  'list':each_item['list'], \
+                                  'timestamp':each_item['_id'].generation_time})
                 return l
 
         def insert_item(self, list_name, newitem):
                 newitem = {'list':list_name, 'item':newitem}
                 self.myitems.insert(newitem)
+
+        def delete_item(self, item):
+                newitem = {'item':item}
+                self.myitems.delete_many(newitem)

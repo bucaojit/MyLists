@@ -4,6 +4,9 @@ from pymongo import MongoClient
 import ListAccessObject
 from requests.sessions import Session
 from operator import itemgetter, attrgetter, methodcaller
+from datetime import datetime
+from pytz import timezone
+import pytz
 
 app = Flask(__name__)
 connection = MongoClient()
@@ -39,6 +42,7 @@ def add_item():
                 </td>
             </tr>
             <tr>
+                <td></td>
                 <td><input type=submit value=Submit></td>
             </tr>
             </table>
@@ -47,6 +51,7 @@ def add_item():
     cssHtml = '''
         <html>
         <head>
+        <title>MyLists</title>
         <style>
         table {
             width:100%;
@@ -105,7 +110,8 @@ def add_item():
             output += '</a>'
             output += '</td>'
             output += '<td>'
-            output += str(item['timestamp'])
+            #output += str(item['timestamp'].strftime("%m-%d-%Y %I:%M %p").astimezone(timezone('US/Pacific')))
+            output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
             output += '</td>'
 
             output += '<td>'
@@ -138,7 +144,9 @@ def add_item():
         output += '</a>'
         output += '</td>'
         output += '<td>'
-        output += str(item['timestamp'])
+        #output += str(item['timestamp'])
+        #output += str(item['timestamp'].strftime("%m-%d-%Y %I:%M %p"))
+        output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
         output += '</td>'
         output += '<td>'
         output += '<form id = "form1" action="" method="post">'
