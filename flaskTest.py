@@ -4,16 +4,15 @@ from pymongo import MongoClient
 import ListAccessObject
 from requests.sessions import Session
 from operator import itemgetter, attrgetter, methodcaller
-from datetime import datetime
 from pytz import timezone
-import pytz
+from datetime import datetime
 
 app = Flask(__name__)
 connection = MongoClient()
 db = connection.lists
-lists = ListAccessObject.ListAccessObject(db)
+lists = ListAccessObject.ListAccessObject(db,'myitems')
+archive = ListAccessObject.ListAccessObject(db,'archive')
 
-@app.route('/mytest/<input>')
 def hello_world2(input):
     return 'Hello Warriors! And %s' % input
 
@@ -42,7 +41,7 @@ def add_item():
                 </td>
             </tr>
             <tr>
-                <td></td>
+            <td></td>
                 <td><input type=submit value=Submit></td>
             </tr>
             </table>
@@ -110,7 +109,7 @@ def add_item():
             output += '</a>'
             output += '</td>'
             output += '<td>'
-            #output += str(item['timestamp'].strftime("%m-%d-%Y %I:%M %p").astimezone(timezone('US/Pacific')))
+            #output += str(item['timestamp'])
             output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
             output += '</td>'
 
@@ -119,7 +118,9 @@ def add_item():
             output += '<input type=hidden value="'
             output += str(item['item'])
             output += '" name="to_delete"></input>'
-            output += '<input type=submit value=Delete></form></td></tr>'
+            output += '<input type=submit value=Delete>'
+            output += '<input type=submit value=Archive>'
+            output += '</form></td></tr>'
         output += '</body>'
         output += '</table>'
         output += '</html>'
@@ -145,7 +146,6 @@ def add_item():
         output += '</td>'
         output += '<td>'
         #output += str(item['timestamp'])
-        #output += str(item['timestamp'].strftime("%m-%d-%Y %I:%M %p"))
         output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
         output += '</td>'
         output += '<td>'
@@ -154,7 +154,8 @@ def add_item():
         #output += 'OliverValue'
         output += str(item['item'])
         output += '" name="to_delete"></input>'
-        output += '<input type=submit value=Delete></form>'
+        output += '<input type=submit name="delete" value="Delete" />'
+        output += '<input type=submit name="archive" value="Archive" /></form>'
         output += '</td></tr>'
     output += '</body>'
     output += '</table>'
