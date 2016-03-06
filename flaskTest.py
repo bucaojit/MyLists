@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from flask import Flask, session, redirect, url_for, escape, request
+from flask import Flask, session, redirect, url_for, escape, request, render_template
 from pymongo import MongoClient
 import ListAccessObject
 from requests.sessions import Session
@@ -192,6 +192,11 @@ def hello_world3():
    </body>
 </html>
 '''
+
+@app.route('/template')
+def templateTest():
+   error=None
+   return render_template('login.html', error=error)
 
 @app.route('/index')
 def hello_world():
