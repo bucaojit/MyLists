@@ -1,14 +1,23 @@
 #!/usr/bin/python
 from flask import Flask, session, redirect, url_for, escape, request, render_template
 from pymongo import MongoClient
+import pymongo
 import ListAccessObject
 from requests.sessions import Session
 from operator import itemgetter, attrgetter, methodcaller
 from pytz import timezone
 from datetime import datetime
+import sys
 
 app = Flask(__name__)
-connection = MongoClient()
+connection = MongoClient("localhost", serverSelectionTimeoutMS=5000)
+try:
+    connection.server_info() 
+except pymongo.errors.ServerSelectionTimeoutError as err:
+    print "Unable to connect to MongoDB, exiting"
+    print(err)
+    sys.exit(1)
+
 db = connection.lists
 lists = ListAccessObject.ListAccessObject(db,'myitems')
 archive = ListAccessObject.ListAccessObject(db,'archive')
