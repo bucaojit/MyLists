@@ -28,7 +28,20 @@ def hello_world2(input):
 def getList(item):
     return str(item['list']).lower()
 
-@app.route('/additem', methods=['GET', 'POST'])
+@app.route('/mycache', methods=['GET', 'POST'])
+def mycache():
+   # Idea here is to have a type of memcache, instead for
+   # useful websites visited, ideas, images
+   # This will have a text search that is searchable on
+   # summary and description.  
+   # Ideas for fields include
+   #   1) Summary
+   #   2) Description
+   #   3) Category
+   #   4) Link
+   return "This is your cache"
+
+@app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
     formHtml = '''
         <form action="" method="post">
