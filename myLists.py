@@ -19,7 +19,7 @@
 # Author: Oliver
 # https://github.com/bucaojit/MyLists
 
-from flask import Flask, session, redirect, url_for, escape, request, render_template
+from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify
 from pymongo import MongoClient
 import pymongo
 import lib.ListAccessObject as ListAccessObject
@@ -66,11 +66,26 @@ def mycache():
 
 class HelloWorld(Resource):
     def get(self):
-        data=[{"listmy":"firstlist", "item":"firstitem"}]
+        data= [{
+           'first_name': 'Bob',
+           'second_name': 'Smith',
+           'titles': ['Mr', 'Developer']
+        },
+        {'list':'firstList'},
+        {'list':'secondList'},
+        {'item':'firstItem'}]
+
         data_jsond = json.dumps(data)
-        return data_jsond
+        value = json.dumps([1, 2, 3, "a", "b", "c"])
+        to_jsonify = [{'first':'firstItem','list':'listval'}]
+        return jsonify(results=data)
+
+class SecondEndpoint(Resource):
+    def get(self):
+        return {'testEnd':'Point'}
 
 api.add_resource(HelloWorld,'/')
+api.add_resource(SecondEndpoint,'/endpoint')
 
 @app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
