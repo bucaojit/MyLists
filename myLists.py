@@ -27,9 +27,12 @@ from requests.sessions import Session
 from operator import itemgetter, attrgetter, methodcaller
 from pytz import timezone
 from datetime import datetime
+from flask_restful import Resource, Api
 import sys
+import json
 
 app = Flask(__name__)
+api = Api(app)
 connection = MongoClient("localhost", serverSelectionTimeoutMS=5000)
 try:
     connection.server_info() 
@@ -60,6 +63,14 @@ def mycache():
    #   3) Category
    #   4) Link
    return "This is your cache"
+
+class HelloWorld(Resource):
+    def get(self):
+        data=[{"listmy":"firstlist", "item":"firstitem"}]
+        data_jsond = json.dumps(data)
+        return data_jsond
+
+api.add_resource(HelloWorld,'/')
 
 @app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
@@ -204,9 +215,9 @@ def add_item():
     output += '</html>'
     return output
 
-@app.route('/')
-def index():
-    return 'this is the index'
+#@app.route('/')
+#def index():
+#    return 'this is the index'
 
 @app.route('/moreo')
 def hello_world4():
