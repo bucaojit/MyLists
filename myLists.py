@@ -91,7 +91,8 @@ class HelloWorld(Resource):
 
 class SecondEndpoint(Resource):
     def get(self):
-        return {'testEnd':'Point'}
+        listValues = lists.find_items()
+        return jsonify(result=listValues)
 
 api.add_resource(HelloWorld,'/')
 api.add_resource(SecondEndpoint,'/endpoint')
