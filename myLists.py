@@ -28,12 +28,21 @@ from operator import itemgetter, attrgetter, methodcaller
 from pytz import timezone
 from datetime import datetime
 from flask_restful import Resource, Api
+import ConfigParser
 import sys
 import json
+
+configFile = 'config/lists.config'
 
 app = Flask(__name__)
 api = Api(app)
 connection = MongoClient("localhost", serverSelectionTimeoutMS=5000)
+Config = ConfigParser.ConfigParser()
+
+# Adding config file to specify options ie database type, ip-address, port
+Config.read(configFile)
+
+
 try:
     connection.server_info() 
 except pymongo.errors.ServerSelectionTimeoutError as err:
