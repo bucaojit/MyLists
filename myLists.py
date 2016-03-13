@@ -94,8 +94,18 @@ class SecondEndpoint(Resource):
         listValues = lists.find_items()
         return jsonify(result=listValues)
 
+class EndpointVal(Resource):
+    def get(self, list_val, item_val):
+        listValues = lists.find_items()
+        #return jsonify(result=listValues)
+        return {list_val:item_val}
+    def put(self, list_val, item_val):
+        
+        return {list_val:item_val}
+
 api.add_resource(HelloWorld,'/')
 api.add_resource(SecondEndpoint,'/endpoint')
+api.add_resource(EndpointVal,'/endpoint2/<string:list_val>/<string:item_val>')
 
 @app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
