@@ -1,13 +1,21 @@
-#!/usr/bin/python
+'''
+Created on Mar 20, 2016
 
-from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify
+@author: oliver
+'''
 
-app = Flask(__name__)
+class server(object):
+    '''
+    classdocs
+    '''
 
-@app.route('/template')
-def show_template():
-    #return app.root_path
-    return render_template('inputform.html')
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    def __init__(self, params):
+        '''
+        Constructor
+        '''
+    def runserver(self):
+        @app.route('/entry')
+        def form_entry():
+            '''
+        
