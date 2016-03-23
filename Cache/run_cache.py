@@ -1,10 +1,14 @@
 #!/usr/bin/python
 
 from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify
-import cache
+from cache import cache
+from server import server
 
 app = Flask(__name__)
 
+conn = "connection"
+
+myserv = server(conn, app)
 
 
 @app.route('/template')
@@ -23,6 +27,7 @@ if __name__ == '__main__':
     test_method()
     
     #mycore.testrun()
+    myserv.runserver()
     app.run(debug=True)
 
 #
