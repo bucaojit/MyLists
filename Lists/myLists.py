@@ -107,10 +107,7 @@ class EndpointVal(Resource):
 class LastInsertedEndpoint(Resource):
     def get(self, count):
         listValues = lists.last_items(count)
-        outputStr = ""
-        for item in listValues:
-            outputStr += str(item:"item") += "\n"
-        return outputStr
+        return jsonify(result = listValues)
 
 api.add_resource(HelloWorld,'/')
 api.add_resource(SecondEndpoint,'/endpoint')

@@ -34,7 +34,8 @@ class ListAccessObject(object):
 
         def last_items(self, value):
                 l = []
-                for each_item in self.mydb.find().limit(value):
+                for each_item in self.mydb.find().sort('_id',-1).limit(value):
+                #for each_item in self.mydb.find().limit(value):
                         l.append({'item':each_item['item'], \
                                   'list':each_item['list'], \
                                   'timestamp':each_item['_id'].generation_time})
