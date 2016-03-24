@@ -27,7 +27,14 @@ class ListAccessObject(object):
         def find_items(self):
                 l = []
                 for each_item in self.mydb.find():
-                        print each_item
+                        l.append({'item':each_item['item'], \
+                                  'list':each_item['list'], \
+                                  'timestamp':each_item['_id'].generation_time})
+                return l
+
+        def last_items(self, value):
+                l = []
+                for each_item in self.mydb.find().limit(value):
                         l.append({'item':each_item['item'], \
                                   'list':each_item['list'], \
                                   'timestamp':each_item['_id'].generation_time})

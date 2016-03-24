@@ -103,9 +103,19 @@ class EndpointVal(Resource):
         
         return {list_val:item_val}
 
+
+class LastInsertedEndpoint(Resource):
+    def get(self, count):
+        listValues = lists.last_items(count)
+        outputStr = ""
+        for item in listValues:
+            outputStr += str(item:"item") += "\n"
+        return outputStr
+
 api.add_resource(HelloWorld,'/')
 api.add_resource(SecondEndpoint,'/endpoint')
 api.add_resource(EndpointVal,'/endpoint2/<string:list_val>/<string:item_val>')
+api.add_resource(LastInsertedEndpoint,'/latest/<int:count>')
 
 @app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
@@ -296,3 +306,84 @@ if __name__ == '__main__':
 
     #session.init_app(app)
     app.run(debug=True)
+
+
+@app.route('/additem', methods=['GET', 'POST'])
+def add_form():
+    formHtml = '''
+        <form action="" method="post">
+            <table border="0">
+            <tr>
+                <td>
+                    List: 
+                </td>
+                <td>
+                    <input type=text name=list>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Item: 
+                </td>
+                <td>
+                    <input type=text name=item>
+                </td>
+            </tr>
+            <tr>
+            <td></td>
+                <td><input type=submit value=Submit></td>
+            </tr>
+            </table>
+        </form>
+    '''
+    cssHtml = '''
+        <html>
+        <head>
+        <title>MyLists</title>
+        <style>
+        table {
+            width:100%;
+        }
+        table, th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 5px;
+            text-align: left;
+        }
+        table#t01 tr:nth-child(even) {
+            background-color: #eee;
+        }
+        table#t01 tr:nth-child(odd) {
+           background-color:#fff;
+        }
+        table#t01 th    {
+            background-color: black;
+            color: white;
+        }
+        </style>
+        </head>
+        <body>
+    '''
+
+    
+    if request.method == 'POST':
+        variable = request.form.get('list',None)
+        variable2 = request.form.get('item',None)
+        hiddenValue = request.form.get('to_delete',None)
+        if hiddenValue is None:
+            lists.insert_item(variable, variable2)
+            #print "hello"
+            
+        else:
+            lists.delete_item(hiddenValue)
+            lists.delete_item(None)
+            #print "nothing here"
+        output = cssHtml + \
+                     formHtml     
+        return output
+
+    output = cssHtml + \
+             formHtml
+    return output
