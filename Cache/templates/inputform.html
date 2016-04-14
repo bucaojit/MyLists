@@ -1,50 +1,67 @@
 <!doctype html>
 <html>
-<title>Add Entry</title>
-<center>
-<b>Add Entry</b>
-<br>
-<br>
-<form>
-<table border="0">
-  <tr>
-  <td>          
-  Category
-  </td>
-  <td>
-  <select name="cars">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="fiat">Fiat</option>
-  <option value="audi">Audi</option>
-  </select>
-  </td>
-  <td>
-  <input type="text" name="firstname" placeholder="Add...">
+        <head>
+	<title>Add Entry</title>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+        </head>
+ 
+        <center>
+	<div align="center" style="width:900px;">
+	<div style="text-align:left;">
+          <a style="text-decoration:none;" href="{{ url_for("search") }}">Go To Search</a>
+        </div>
+		<h2><b>Add Entry</b></h2>
+		
+		<form method="Post">
+			<table border=0>
+				<tr>
+  					<td>
+  						Title:
+  					</td>
+  					<td >
+  						<textarea autofocus="autofocus" name="Title" style="width:97%" rows="1" ></textarea>
+ 					 </td>
+ 				</tr>
+  				<tr>
+  					<td>          
+  						Category
+  					</td>
+<!--    					
+                        <td>
+  						<select name="category_dropdown">
+  						<option value="select">--select--</option>
+  
+  					  
+					    </select>
+				  </td>
+-->				  
+				  <td>
+  <input  type="text" name="category_text" placeholder="Add...">
   </td>
   </tr>
   <tr>
   <td>
   SubCategory
   </td>
+<!--  
   <td>
-  <select name="other">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="fiat">Fiat</option>
-  <option value="audi">Audi</option>
+  <select name="subcategory_dropdown">
+  <option value="select">--select--</option>
+    Get Rest from Python 
+
   </select>
   </td>
+-->
   <td>
-  <input type="text" name="firstname" placeholder="Add...">
+  <input type="text" name="subcategory_text" placeholder="Add...">
   </td>
   </tr>
   <tr>
   <td>
   Link:
   </td>
-  <td colspan="2" >
-    <input type="link" name="firstname" style="width:97%">
+  <td >
+    <input type="link" name="link_input" style="width:97%">
   </td>
   </tr>
   <tr>
@@ -52,27 +69,26 @@
   Usefulness:
   </td>
   <td>
-  <select name="other">
-  <option value="volvo">Volvo</option>
-  <option value="saab">Saab</option>
-  <option value="fiat">Fiat</option>
-  <option value="audi">Audi</option>
+  <select name="usefulness">
+  <option value="10">10</option>
+  <option value="9">9</option>
+  <option value="8">8</option>
+  <option value="7">7</option>
+  <option value="6">6</option>
+  <option selected="selected" value="5">5</option>
+  <option value="4">4</option>
+  <option value="3">3</option>
+  <option value="2">2</option>
+  <option value="1">1</option>
   </select>
   </td>
   </tr>
-  <tr>
-  <td>
-  Summary:
-  </td>
-  <td colspan="2">
-  <textarea name="Summary" style="width:97%" rows="5" ></textarea>
-  </td>
-  </tr>
+  
   <tr>
   <td>
   Description:
   </td>
-  <td colspan="2">
+  <td >
   <textarea name="Description" style="width:97%" cols="60" rows="10" ></textarea>
   </td>
   
@@ -80,13 +96,21 @@
  
   </tr>
   <tr>
-  <td colspan="3">
-    <input style="height:50px;width:99%" type=submit value=Submit>
-    
+ 
+  <td>
   </td>
+  <td >
+    <!--  <input style="height:50px;width:75%" type=submit value=Submit>-->
+    <input style="height:50px;width:99%" type=submit value=Submit>
+  </td>
+  <td>
+    <input style="height:50px" type=submit value="Upload">
+  </td>
+
   </tr>
   </table>
 </form>
+</div>
 </center>
 </html>
 <!-- 

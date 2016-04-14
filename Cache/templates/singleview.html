@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+	<head>
+		<title>View</title>
+                <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+	</head>
+        <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        table, td, th {
+            border: 1px solid black;
+        }
+        </style>
+	<body>
+                <center>
+                <div style="text-align:left;width:700px;padding-left:50px;padding-right:50px">
+                <a href="javascript:history.back()"><-Go Back</a>
+                &nbsp;&nbsp;
+                <a style="text-decoration:none;" href="{{ url_for("search") }}">Search</a>
+                <br>
+                <br>
+		<div style="font-size:x-large"><b>{{ entry.summary }}</b></div>
+                <a style="text-decoration:none;color:brown;font-size:small" href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a>
+                <br>
+		<font color="gray">{{ entry.category_text }}</font> --
+                <font color="gray">{{ entry.subcategory_text }}</font>
+                {% if entry.link_input %}
+<!--                    <a  href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a> -->
+                <br>
+                {% endif %}
+                <hr>
+		{{ description }}
+		<br>
+                </div>
+                </center>
+<!--
+		Delete     Edit    PDF 
+		<br>
+		Site
+		<br>
+		Image scaled
+-->
+	</body>
+
+        <footer>
+        </footer>
+        
+</html>

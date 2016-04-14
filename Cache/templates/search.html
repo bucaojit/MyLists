@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Cache Search</title>
+                <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+	</head>
+	<body>
+		<br />
+		<center>
+                <div style="width:700px;text-align:left;">
+                        <a href="{{ url_for('form_entry') }}">
+                           Add Entry
+                        </a>
+                </div>
+		<table border=0 style="width:700px">
+			<form method="Post">
+				<div >
+					<tr>
+						<td>
+							<div align="center">
+							<p style="font-size:x-large"><font face="sans-serif"><b>Search</b></font></p>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="4">
+		  					<input type="text" autofocus="autofocus" name="Search" style="width:98%" rows="1" ></input>
+		  						
+		 				</td>
+<!--
+						<td>
+							<input type=submit value=Search>					
+						</td>
+-->
+					</tr >
+					<tr style="height:30px;">
+						<td>
+						</td>
+                                        </tr>              
+<!--
+                                        <tr>
+						<td>
+							<select name="category">
+								<option selected="selected" value="select">--category--</option>
+								{% for category in categories %}
+								<option value="{{category}}">{{category}}</option>
+								{% endfor  %}
+							</select>
+						
+							<select name="subcategory">
+								<option selected="selected" value="select">--subcategory--</option>
+								{% for subcategory in subcategories %}
+								<option value="{{subcategory}}">{{subcategory}}</option>
+								{% endfor  %}
+							</select>
+						</td>
+					</tr>
+					<tr>
+						<td>
+                                                        <input type="submit" name="Browse" value="Browse">
+						</td>
+					</tr>
+-->
+				</div>
+			</form>
+		</table>
+		</center>
+                <br>
+                <br>
+                {% for entry in entries %}
+                <center>
+                <div style="text-align:left;width:700px;padding-left:50px;padding-right:50px">
+                        <b>
+                        <a style="text-decoration:none;" href="{{ url_for('view_single') + '?str_id=' + entry.str_id }}"><font face="sans-serif"> {{ entry.summary }} </font></a></b>
+                        <br>
+                        {% if entry.link_input %}
+                        <a style="text-decoration:none;color:brown;font-size:small" href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a>
+<!--                    <a  href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a> -->
+                        <br>
+                        {% endif %}
+                        <!--{{ entry.usefulness }}-->
+                        {% if entry.description %}
+                        <font face="sans-serif">
+                        {{ entry.description }}
+                        </font>
+                        <br>
+                        {% endif %}
+                        <font size="2" color="gray">{{ entry.category_text }} -- {{ entry.subcategory_text }}</font>
+                        <br>
+                        <br>
+                        <br>
+
+
+                </div>
+                </center>
+                {% endfor  %}
+	</body>
+</html>

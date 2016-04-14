@@ -1,0 +1,37 @@
+	<head>
+		<title>Results</title>
+                <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+	</head>
+	<body>
+                <center>
+		<div style="text-align:left;width:700px;padding-left:50px;padding-right:50px">
+                  <a style="text-decoration:none;" href="{{ url_for("search") }}"><-Search</a>
+                  <br>
+                  <div style="text-align:center">
+                      <font size="4" face="sans-serif"><b>Results</b></font>
+                  </div>
+                  <hr />
+		{% for entry in entries %} 
+                        <b>
+			<a style="text-decoration:none;" href="{{ url_for('view_single') + '?str_id=' + entry.str_id }}"><font face="sans-serif"> {{ entry.summary }} </font></a></b> 
+                        <br>
+                        {% if entry.link_input %}
+			<a style="text-decoration:none;color:brown;font-size:small" href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a> 
+<!--			<a  href="{{entry.link_input}}"><font face="sans-serif"> {{entry.link_input}} </font></a> -->
+                        <br>
+                        {% endif %}
+                        <!--{{ entry.usefulness }}-->
+                        {% if entry.description %}
+                        <font face="sans-serif">
+			{{ entry.description }} 
+                        </font>
+                        <br>
+                        {% endif %}
+		        <font size="2" color="gray">{{ entry.category_text }} -- {{ entry.subcategory_text }}</font>
+			
+		<hr style="width:700px" />
+		{% endfor  %}
+                </div>
+                </center>
+	</body>
+</html>

@@ -1,38 +1,35 @@
 #!/usr/bin/python
 
 from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify
-from cache import cache
-from server import server
+#from cache import cache
+from server import CacheServer
+#from mongo_connector import MongoConnector
 
 app = Flask(__name__)
 
-conn = "connection"
+# From configuration
+# if config ==mongo:
+#     conn = mongo_connector()
+# elif config == MarkLogic:
+#     conn = ml_connector()
+# elf config == HBase:
+#     conn = hbase_connector()
+# conn = mongo_connector()
 
-myserv = server(conn, app)
+# This should 'get' from config file
+database_type = 'mdb'
+ip_addr = 'localhost'
+tracing = "True"
 
+config = {"database":database_type, "address":ip_addr, "trace":tracing}
 
-@app.route('/template')
-def show_template():
-    #return app.root_path
-    return render_template('inputform.html')
+myserv = CacheServer(config, app)
+if config['trace'] == "True": print 'TRACE: after myserv = CacheServer'
 
-def test_method():
-    print "running test method"
-    
-    @app.route('/testmethod')
-    def testhandle():
-        return "The method does work"
+if config['trace'] == "True": print 'TRACE: after add_routes()'
+myserv.add_routes()
 
 if __name__ == '__main__':
-    test_method()
-    
-    #mycore.testrun()
-    myserv.runserver()
     app.run(debug=True)
+    
 
-#
-#  Ideas:  Make like a journal
-#          Forcing login
-#          Mongo for cache, Search = ElasticSearch
-#          Structure, it's setup
-#          Keep it as a simple setup for now
