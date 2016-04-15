@@ -17,6 +17,6 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 import sys, os
-sys.path.insert (0,'/var/www/MyLists')
-os.chdir("/var/www/MyLists")
+sys.path.insert (0,'/var/MyLists')
+os.chdir("/var/MyLists")
 from myLists import app as application

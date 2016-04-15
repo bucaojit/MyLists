@@ -19,7 +19,12 @@
 # Author: Oliver
 # https://github.com/bucaojit/MyLists
 
-from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify
+from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify, flash
+from flask import Flask as flask
+from flask.ext.login import LoginManager
+import flask.ext.login as flask_login
+from lib.forms import LoginForm
+from flask.ext.login import login_user, logout_user, current_user, login_required
 from pymongo import MongoClient
 import pymongo
 import lib.ListAccessObject as ListAccessObject
@@ -29,15 +34,21 @@ from pytz import timezone
 from datetime import datetime
 from flask_restful import Resource, Api
 import ConfigParser
+from lib.user import User
 import sys
 import json
+from werkzeug.security import check_password_hash
 
 configFile = 'config/lists.config'
+ip_addr = 'localhost'
 
 app = Flask(__name__)
+app.config.from_object('config')
 api = Api(app)
-connection = MongoClient("localhost", serverSelectionTimeoutMS=5000)
+connection = MongoClient(ip_addr, serverSelectionTimeoutMS=5000)
 Config = ConfigParser.ConfigParser()
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # Adding config file to specify options ie database type, ip-address, port
 Config.read(configFile)
@@ -53,6 +64,14 @@ except pymongo.errors.ServerSelectionTimeoutError as err:
 db = connection.lists
 lists = ListAccessObject.ListAccessObject(db,'myitems')
 archive = ListAccessObject.ListAccessObject(db,'archive')
+backlog = ListAccessObject.ListAccessObject(db,'backlog')
+
+@login_manager.user_loader
+def load_user(username):
+    u = app.config['USERS_COLLECTION'].find_one({"_id": username})
+    if not u:
+        return None
+    return User(u['_id'])
 
 def hello_world2(input):
     return 'Hello Warriors! And %s' % input
@@ -60,48 +79,12 @@ def hello_world2(input):
 def getList(item):
     return str(item['list']).lower()
 
-@app.route('/mycache', methods=['GET', 'POST'])
-def mycache():
-   # Idea here is to have a type of memcache, instead for
-   # useful websites visited, ideas, images
-   # This will have a text search that is searchable on
-   # summary and description.  
-   # Ideas for fields include
-   #   1) Summary
-   #   2) Description
-   #   3) Category
-   #   4) Link
-   return "This is your cache"
-
-class HelloWorld(Resource):
-    def get(self):
-        data= [{
-           'first_name': 'Bob',
-           'second_name': 'Smith',
-           'titles': ['Mr', 'Developer']
-        },
-        {'list':'firstList'},
-        {'list':'secondList'},
-        {'item':'firstItem'}]
-
-        data_jsond = json.dumps(data)
-        value = json.dumps([1, 2, 3, "a", "b", "c"])
-        to_jsonify = [{'first':'firstItem','list':'listval'}]
-        return jsonify(results=data)
 
 class SecondEndpoint(Resource):
     def get(self):
         listValues = lists.find_items()
-        return jsonify(result=listValues)
-
-class EndpointVal(Resource):
-    def get(self, list_val, item_val):
-        listValues = lists.find_items()
-        #return jsonify(result=listValues)
-        return {list_val:item_val}
-    def put(self, list_val, item_val):
-        
-        return {list_val:item_val}
+        sortedVals = sorted(listValues, key=getList)
+        return jsonify(result=sortedVals)
 
 
 class LastInsertedEndpoint(Resource):
@@ -109,153 +92,69 @@ class LastInsertedEndpoint(Resource):
         listValues = lists.last_items(count)
         return jsonify(result = listValues)
 
-api.add_resource(HelloWorld,'/')
 api.add_resource(SecondEndpoint,'/endpoint')
-api.add_resource(EndpointVal,'/endpoint2/<string:list_val>/<string:item_val>')
 api.add_resource(LastInsertedEndpoint,'/latest/<int:count>')
 
-@app.route('/checklist', methods=['GET', 'POST'])
-def add_item():
-    formHtml = '''
-        <form action="" method="post">
-            <table border="0">
-            <tr>
-                <td>
-                    List: 
-                </td>
-                <td>
-                    <input type=text name=list>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    Item: 
-                </td>
-                <td>
-                    <input type=text name=item>
-                </td>
-            </tr>
-            <tr>
-            <td></td>
-                <td><input type=submit value=Submit></td>
-            </tr>
-            </table>
-        </form>
-    '''
-    cssHtml = '''
-        <html>
-        <head>
-        <title>MyLists</title>
-        <style>
-        table {
-            width:100%;
-        }
-        table, th, td {
-            border: 1px solid black;
-            border-collapse: collapse;
-        }
-        th, td {
-            padding: 5px;
-            text-align: left;
-        }
-        table#t01 tr:nth-child(even) {
-            background-color: #eee;
-        }
-        table#t01 tr:nth-child(odd) {
-           background-color:#fff;
-        }
-        table#t01 th    {
-            background-color: black;
-            color: white;
-        }
-        </style>
-        </head>
-        <body>
-    '''
+@app.route('/test', methods=['GET', 'POST'])
+def template_test():
+    tableValues = lists.find_items()
+    tableValues = sorted(tableValues, key=getList)
+    return render_template('lists.html', items=tableValues)
 
-    
+@app.route('/completed', methods=['GET', 'POST'])
+@login_required
+def view_completed():
+    tableValues = archive.find_items()
+    tableValues = sorted(tableValues, key=getList)
+    return render_template('lists.html', items=tableValues)
+
+@app.route('/backlog', methods=['GET', 'POST'])
+@login_required
+def view_backlog():
+    tableValues = backlog.find_items()
+    tableValues = sorted(tableValues, key=getList)
+    return render_template('lists.html', items=tableValues)
+
+@app.route('/checklist', methods=['GET', 'POST'])
+@login_required
+def add_item():
     if request.method == 'POST':
         variable = request.form.get('list',None)
         variable2 = request.form.get('item',None)
         hiddenValue = request.form.get('to_delete',None)
+        hiddenList = request.form.get('list_name', None)
         if hiddenValue is None:
             lists.insert_item(variable, variable2)
             #print "hello"
             
         else:
+            # Button pressed 
+            if request.form.get('completed', None) is not None:
+                #completed
+                #archive 
+                archive.insert_item(hiddenList, hiddenValue)
+                
+                
+            elif request.form.get('backlog', None) is not None:
+                #backlog
+                print "test"
+                backlog.insert_item(hiddenList, hiddenValue)
+            
             lists.delete_item(hiddenValue)
             lists.delete_item(None)
             #print "nothing here"
         output = cssHtml + \
                      formHtml + \
                      '<table id="t01">' + \
-                     '<tr> <th> List Name </th> <th> Item </th> <th>Timestamp</th><th></th></tr>'
+                     '<tr> <th> List </th> <th> Item </th> <th></th><th></th></tr>'
         tableValues = lists.find_items()
         tableValues = sorted(tableValues, key=getList)
         
-        for item in tableValues:
-            output += '<tr><td>'
-            output += str(item['list'])
-            output += '</td><td>'
-            output += '<a href="'
-            output += str(item['item'])
-            output += '">'
-            output += str(item['item'])
-            output += '</a>'
-            output += '</td>'
-            output += '<td>'
-            #output += str(item['timestamp'])
-            output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
-            output += '</td>'
-
-            output += '<td>'
-            output += '<form action="" method="post">'
-            output += '<input type=hidden value="'
-            output += str(item['item'])
-            output += '" name="to_delete"></input>'
-            output += '<input type=submit value=Delete>'
-            output += '<input type=submit value=Archive>'
-            output += '</form></td></tr>'
-        output += '</body>'
-        output += '</table>'
-        output += '</html>'
-        
-    
-        return output
+        return render_template('checklist.html', session=session, items=tableValues)
     tableValues = lists.find_items()
     tableValues = sorted(tableValues, key=getList)
 
-    output = cssHtml + \
-             formHtml + \
-             '<table id="t01">' + \
-             '<tr> <th> List Name </th> <th> Item </th> <th>Timestamp</th><th></th></tr>'
-    for item in tableValues:
-        output += '<tr><td>'
-        output += str(item['list'])
-        output += '</td><td>'
-        output += '<a href="'
-        output += str(item['item'])
-        output += '">'
-        output += str(item['item'])
-        output += '</a>'
-        output += '</td>'
-        output += '<td>'
-        #output += str(item['timestamp'])
-        output += str(item['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
-        output += '</td>'
-        output += '<td>'
-        output += '<form id = "form1" action="" method="post">'
-        output += '<input type=hidden value="'
-        #output += 'OliverValue'
-        output += str(item['item'])
-        output += '" name="to_delete"></input>'
-        output += '<input type=submit name="delete" value="Delete" />'
-        output += '<input type=submit name="archive" value="Archive" /></form>'
-        output += '</td></tr>'
-    output += '</body>'
-    output += '</table>'
-    output += '</html>'
-    return output
+    return render_template('checklist.html', session=session, items=tableValues)
 
 #@app.route('/')
 #def index():
@@ -288,10 +187,32 @@ def hello_world3():
 </html>
 '''
 
-@app.route('/template')
-def templateTest():
-   error=None
-   return render_template('login.html', error=error)
+@app.route("/logout", methods=["GET"])
+@login_required
+def logout():
+    """Logout the current user."""
+    #user = current_user
+    #user.authenticated = False
+    #db.session.add(user)
+    #db.session.commit()
+    logout_user()
+    return render_template("logout.html")
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm(csrf_enabled=False)
+    if request.method == 'POST' and form.validate_on_submit():
+        user = app.config['USERS_COLLECTION'].find_one({"_id": form.username.data})
+        #user = MongoClient()['blog'].users.find_one({"_id": form.username.data})
+
+        if user and User.validate_login(user['password'], form.password.data):
+            user_obj = User(user['_id'])
+            login_user(user_obj, remember=True)
+            flash("Logged in successfully!", category='success')
+            return redirect(request.args.get("next") or url_for("add_item"))
+        flash("Wrong username or password!", category='error')
+    return render_template('login.html', title='login', form=form)
+
 
 @app.route('/index')
 def hello_world():
@@ -384,3 +305,4 @@ def add_form():
     output = cssHtml + \
              formHtml
     return output
+

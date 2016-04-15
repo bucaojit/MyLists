@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+{% block title %}MyLists{% endblock %}
+<head>
+{% block head %}
+<!--  {{ super() }}-->
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+ 
+{% endblock %}
+  <title>CheckList</title>
+</head>
+{% block body %}
+  
+  <h1>CheckList</h1>
+  <form action="" method="post">
+     <table border="0">
+        <tr>
+            <td>
+                List: 
+            </td>
+            <td>
+                <input type=text name=list>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Item: 
+            </td>
+            <td>
+                <input type=text name=item>
+            </td>
+        </tr>
+        <tr>
+        <td></td>
+            <td><input type=submit value=Submit></td>
+        </tr>
+     </table>
+  </form>
+
+  <table id="t01">
+  	<tr>
+  		<th> List </th>
+  		<th> Item </th>
+  		<th></th>
+  		<th></th>
+  	</tr>
+
+  	{% for item in items %}
+  	<tr>
+  		<td>
+  			{{ item.list }}
+  		</td>
+  		<td>
+  			<a style="text-decoration:none" href={{item.item}}>
+  				{{item.item}}
+  			</a>
+  		</td>
+  		<td>
+  			<form action="" method="post">
+  				<input type=hidden value={{item.item}} name="to_delete" />
+  				<input type=hidden value={{item.list}} name="list_name" />
+  				<input type=submit name="completed" value=Completed />
+  				<input type=submit name="backlog" value=BackLog />
+  				<input type=submit name="delete" value=X>
+  			</form>
+  		</td>
+  	</tr>
+  
+  	{% endfor %}
+  </table>
+
+{% endblock %}

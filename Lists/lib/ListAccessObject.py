@@ -31,6 +31,13 @@ class ListAccessObject(object):
                                   'list':each_item['list'], \
                                   'timestamp':each_item['_id'].generation_time})
                 return l
+        def find_sorted(self):
+                l = []
+                for each_item in self.mydb.find().sort('list',1):
+                        l.append({'item':each_item['item'], \
+                                  'list':each_item['list'], \
+                                  'timestamp':each_item['_id'].generation_time})
+                return l
 
         def last_items(self, value):
                 l = []

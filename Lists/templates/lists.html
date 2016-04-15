@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+{% block title %}MyLists{% endblock %}
+<head>
+{% block head %}
+<!--  {{ super() }}-->
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+ 
+{% endblock %}
+</head>
+{% block body %}
+  
+  <p class="important">
+    Welcome on my awesome homepage.
+  </p>
+  <table id="t01">
+  	<tr>
+  		<th> List </th>
+  		<th> Item </th>
+  		<th></th>
+  		<th></th>
+  	</tr>
+
+  	{% for item in items %}
+  	<tr>
+  		<td>
+  			{{ item.list }}
+  		</td>
+  		<td>
+  			<a style="text-decoration:none" href={{item.item}}>
+  				{{item.item}}
+  			</a>
+  		</td>
+  		<td>
+  			<form action="" method="post">
+  				<input type=hidden value={{item.item}} name="to_delete" />
+  				<input type=hidden value={{item.list}} name="list_name" />
+  				<input type=submit name="completed" value=Completed />
+  				<input type=submit name="backlog" value=BackLog />
+  				<input type=submit name="delete" value=X>
+  			</form>
+  		</td>
+  	</tr>
+  
+  	{% endfor %}
+  </table>
+
+{% endblock %}
