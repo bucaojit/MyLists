@@ -47,7 +47,7 @@ class MongoConnector(Connector):
     def disconnect(self):
         return
     def insert(self, values):
-        self.db_collection.insert(values)
+        return self.db_collection.insert(values)
     
     def insert_binary(self, filename, binary_file):
         mimetype = 'application/pdf'
@@ -77,6 +77,14 @@ class MongoConnector(Connector):
     def id_get(self, str_id):
         objid = ObjectId(str_id)
         return self.db_collection.find_one({'_id':objid})
+
+    def delete_one(self, str_id):
+        objid = ObjectId(str_id)
+        self.db_collection.delete_one({'_id':objid})
+
+    def entry_update(self, str_id, dict_entry):
+        objid = ObjectId(str_id)
+        return self.db_collection.replace_one({'_id':objid}, dict_entry)
     
     def search(self, search_text, category, subcategory):
         search_dict = {}
@@ -93,6 +101,4 @@ class MongoConnector(Connector):
         # return self.db_collection.find({search_string})
         #return self.db_collection.find({ 'category_text': category,
         #                                 '$text' : { '$search': search_string} })
-        for entry in search_dict:
-            print str(entry)
-        return self.db_collection.find(search_dict)
+        return self.db_collection.find(search_dict,{'score': {'$meta': 'textScore'}}).sort([('score', {'$meta': 'textScore'})])

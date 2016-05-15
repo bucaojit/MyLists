@@ -19,6 +19,8 @@
 # Author: Oliver
 # https://github.com/bucaojit/MyLists
 
+import sys
+sys.path.append('/usr/local/lib/python2.7/dist-packages')
 from flask import Flask, session, redirect, url_for, escape, request, render_template, jsonify, flash
 from flask import Flask as flask
 from flask.ext.login import LoginManager
@@ -33,9 +35,8 @@ from operator import itemgetter, attrgetter, methodcaller
 from pytz import timezone
 from datetime import datetime
 from flask_restful import Resource, Api
-import ConfigParser
+import configparser
 from lib.user import User
-import sys
 import json
 from werkzeug.security import check_password_hash
 
@@ -46,7 +47,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 api = Api(app)
 connection = MongoClient(ip_addr, serverSelectionTimeoutMS=5000)
-Config = ConfigParser.ConfigParser()
+Config = configparser.ConfigParser()
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -57,7 +58,7 @@ Config.read(configFile)
 try:
     connection.server_info() 
 except pymongo.errors.ServerSelectionTimeoutError as err:
-    print "Unable to connect to MongoDB, exiting"
+    print ("Unable to connect to MongoDB, exiting")
     print(err)
     sys.exit(1)
 
@@ -72,9 +73,6 @@ def load_user(username):
     if not u:
         return None
     return User(u['_id'])
-
-def hello_world2(input):
-    return 'Hello Warriors! And %s' % input
 
 def getList(item):
     return str(item['list']).lower()
@@ -104,20 +102,44 @@ def template_test():
 @app.route('/completed', methods=['GET', 'POST'])
 @login_required
 def view_completed():
+    if request.method == 'POST':
+        hiddenValue = request.form.get('to_delete',None)
+        archive.delete_item(hiddenValue)
+    buttons = [ 'X' ]
     tableValues = archive.find_items()
     tableValues = sorted(tableValues, key=getList)
-    return render_template('lists.html', items=tableValues)
+    return render_template('lists.html', 
+                           items=tableValues,
+                           name='completed',
+                           buttons=buttons)
 
 @app.route('/backlog', methods=['GET', 'POST'])
 @login_required
 def view_backlog():
+
+    if request.method == 'POST':
+        hiddenValue = request.form.get('to_delete',None)
+        hiddenList = request.form.get('list_name', None)
+        if request.form.get('Completed', None) is not None:
+            archive.insert_item(hiddenList, hiddenValue)
+        elif request.form.get('Backlog', None) is not None:
+            backlog.insert_item(hiddenList, hiddenValue)
+        elif request.form.get('CheckList', None) is not None:
+            lists.insert_item(hiddenList, hiddenValue)
+        
+        backlog.delete_item(hiddenValue)
+    buttons = [ 'CheckList', 'Completed', 'X' ]
     tableValues = backlog.find_items()
     tableValues = sorted(tableValues, key=getList)
-    return render_template('lists.html', items=tableValues)
+    return render_template('lists.html', 
+                           items=tableValues, 
+                           name='backlog', 
+                           buttons=buttons)
 
 @app.route('/checklist', methods=['GET', 'POST'])
-@login_required
 def add_item():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
     if request.method == 'POST':
         variable = request.form.get('list',None)
         variable2 = request.form.get('item',None)
@@ -125,36 +147,32 @@ def add_item():
         hiddenList = request.form.get('list_name', None)
         if hiddenValue is None:
             lists.insert_item(variable, variable2)
-            #print "hello"
             
         else:
-            # Button pressed 
-            if request.form.get('completed', None) is not None:
-                #completed
-                #archive 
+            if request.form.get('Completed', None) is not None:
                 archive.insert_item(hiddenList, hiddenValue)
-                
-                
-            elif request.form.get('backlog', None) is not None:
-                #backlog
-                print "test"
+            elif request.form.get('Backlog', None) is not None:
                 backlog.insert_item(hiddenList, hiddenValue)
-            
             lists.delete_item(hiddenValue)
             lists.delete_item(None)
-            #print "nothing here"
-        output = cssHtml + \
-                     formHtml + \
-                     '<table id="t01">' + \
-                     '<tr> <th> List </th> <th> Item </th> <th></th><th></th></tr>'
         tableValues = lists.find_items()
         tableValues = sorted(tableValues, key=getList)
+        tableValues = add_time(tableValues)
         
         return render_template('checklist.html', session=session, items=tableValues)
     tableValues = lists.find_items()
     tableValues = sorted(tableValues, key=getList)
+    
+    tableValues = add_time(tableValues)
 
     return render_template('checklist.html', session=session, items=tableValues)
+
+def add_time(list_input):
+    list_output = []
+    for entry in list_input:
+        entry['datetime'] = str(entry['timestamp'].astimezone(timezone('US/Pacific')).strftime("%m-%d-%Y %I:%M%p"))
+        list_output.append(entry)
+    return list_output
 
 #@app.route('/')
 #def index():
@@ -213,10 +231,6 @@ def login():
         flash("Wrong username or password!", category='error')
     return render_template('login.html', title='login', form=form)
 
-
-@app.route('/index')
-def hello_world():
-    return 'Hello Warriors! And %s' % input
 
 if __name__ == '__main__':
     #app.secret_key = 'super secret key'

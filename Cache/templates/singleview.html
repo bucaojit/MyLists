@@ -12,6 +12,10 @@
         table, td, th {
             border: 1px solid black;
         }
+        p.description {
+           width: 700px;
+           word-wrap: break-word;
+        }
         </style>
 	<body>
                 <center>
@@ -19,6 +23,11 @@
                 <a href="javascript:history.back()"><-Go Back</a>
                 &nbsp;&nbsp;
                 <a style="text-decoration:none;" href="{{ url_for("search") }}">Search</a>
+                &nbsp;&nbsp;
+                <a style="text-decoration:none;" href="{{url_for('edit_entry') + '?str_id=' + str_id }}">Edit</a>
+                &nbsp;&nbsp;
+                <a style="text-decoration:none;" href="{{url_for('delete_entry') + '?str_id=' + str_id }}">Delete</a>
+
                 <br>
                 <br>
 		<div style="font-size:x-large"><b>{{ entry.summary }}</b></div>
@@ -31,7 +40,9 @@
                 <br>
                 {% endif %}
                 <hr>
+                <p class="description">
 		{{ description }}
+                </p>
 		<br>
                 </div>
                 </center>

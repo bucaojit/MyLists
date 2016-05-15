@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+        <head>
+	<title>Add Entry</title>
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+        </head>
+ 
+        <center>
+	<div align="center" style="width:900px;">
+	<div style="text-align:left;">
+          <a style="text-decoration:none;" href="{{ url_for("search") }}">Go To Search</a>
+        </div>
+		<form method="Post">
+			<table border=0>
+                                <tr>
+  					<td>
+  					</td>
+  					<td style="text-align:center">
+		                          <h2><b>Add Entry</b></h2>
+  					</td>
+				</tr>
+				<tr>
+  					<td>
+  						Entry:
+  					</td>
+  					<td >
+  						<textarea autofocus="autofocus" name="Entry" style="width:97%" rows="25" cols="60" ></textarea>
+ 					 </td>
+ 				</tr>  
+        <tr>
+          <td>Link:</td>
+          <td ><input type="link" name="link_input" style="width:97%"></td>
+        </tr>
+        <tr>
+          <td>Usefulness:</td>
+          <td>
+            <select name="usefulness">
+            <option value="10">10</option>
+            <option value="9">9</option>
+            <option value="8">8</option>
+            <option value="7">7</option>
+            <option value="6">6</option>
+            <option selected="selected" value="5">5</option>
+            <option value="4">4</option>
+            <option value="3">3</option>
+            <option value="2">2</option>
+            <option value="1">1</option>
+            </select>
+          </td>
+        </tr>
+
+          <tr>
+            <td>          
+              Category
+            </td>
+          <td>
+            <input  type="text" name="category_text" placeholder="Add...">
+            <input style="text-align:right;height:50px" type=submit value="Upload">
+          </td>
+        </tr>
+        <tr>
+          <td>
+          </td>
+          <td >
+            <input style="height:50px;width:99%" type=submit value=Submit>
+          </td>
+        </tr>
+  </table>
+</form>
+</div>
+</center>
+</html>

@@ -1,6 +1,6 @@
 from marklogic_connector import MarkLogicConnector
 from mongo_connector import MongoConnector
-from cache import CacheEngine
+from Cache.cache import CacheEngine
 
 class CacheAccess(object):
     database_name = 'cache'
@@ -25,10 +25,13 @@ class CacheAccess(object):
         #    self.binary_insert(dict_entry['link_input'], pdf)
         #processed_entry = self.cache.process_html(dict_entry['link_input'])
         #    dict_entry['html'] = processed_entry
-        self.db_connection.insert(dict_entry)
+        return self.db_connection.insert(dict_entry)
     
     def binary_insert(self, filename, binary_file):
         self.db_connection.insert_binary(filename, binary_file)
+
+    def delete_one(self, str_id):
+        self.db_connection.delete_one(str_id)
     
     def binary_get(self, filename):
         return self.db_connection.get_binary(filename)
@@ -51,3 +54,5 @@ class CacheAccess(object):
     def newest_n(self, n, reverse):
         return self.db_connection.newest_n(n, reverse)
     
+    def entry_update(self, str_id, dict_entry):
+        return self.db_connection.entry_update(str_id, dict_entry)

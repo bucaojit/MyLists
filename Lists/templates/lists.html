@@ -5,12 +5,13 @@
 <!--  {{ super() }}-->
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
  
+<title>{{name}}</title>
 {% endblock %}
 </head>
 {% block body %}
   
   <p class="important">
-    Welcome on my awesome homepage.
+    <h1>{{ name }}</h1>
   </p>
   <table id="t01">
   	<tr>
@@ -32,11 +33,11 @@
   		</td>
   		<td>
   			<form action="" method="post">
-  				<input type=hidden value={{item.item}} name="to_delete" />
-  				<input type=hidden value={{item.list}} name="list_name" />
-  				<input type=submit name="completed" value=Completed />
-  				<input type=submit name="backlog" value=BackLog />
-  				<input type=submit name="delete" value=X>
+  				<input type=hidden value="{{item.item}}" name="to_delete" />
+  				<input type=hidden value="{{item.list}}" name="list_name" />
+                                {% for button in buttons %}
+  				<input type=submit name="{{button}}" value={{button}} />
+                                {% endfor %}
   			</form>
   		</td>
   	</tr>
