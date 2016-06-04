@@ -1,5 +1,5 @@
 # ProductivityTools
-Productivity tools that use a database/webserver to store work related tasks and data
+Tools that use a database/webserver to store work related tasks and data
 
 ### Cache 
 Store and search useful information 
