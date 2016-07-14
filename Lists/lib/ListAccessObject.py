@@ -31,6 +31,13 @@ class ListAccessObject(object):
                                   'list':each_item['list'], \
                                   'timestamp':each_item['_id'].generation_time})
                 return l
+
+        def find_lists(self):
+                l = []
+                for each_item in self.mydb.find():
+                        l.append({'list':each_item['list'], \
+                                  'timestamp':each_item['_id'].generation_time})
+                return l
         def find_sorted(self):
                 l = []
                 for each_item in self.mydb.find().sort('list',1):
@@ -54,4 +61,12 @@ class ListAccessObject(object):
 
         def delete_item(self, item):
                 newitem = {'item':item}
+                self.mydb.delete_many(newitem)
+
+        def insert_listname(self, list_name):
+                newitem = {'list':list_name}
+                self.mydb.insert(newitem)
+
+        def delete_listname(self, list_name):
+                newitem = {'list':list_name}
                 self.mydb.delete_many(newitem)

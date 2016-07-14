@@ -63,9 +63,11 @@ except pymongo.errors.ServerSelectionTimeoutError as err:
     sys.exit(1)
 
 db = connection.lists
+list_names = ListAccessObject.ListAccessObject(db,'listnames')
 lists = ListAccessObject.ListAccessObject(db,'myitems')
 archive = ListAccessObject.ListAccessObject(db,'archive')
 backlog = ListAccessObject.ListAccessObject(db,'backlog')
+login = db['login']
 
 @login_manager.user_loader
 def load_user(username):
@@ -136,6 +138,42 @@ def view_backlog():
                            name='backlog', 
                            buttons=buttons)
 
+@app.route('/namedlist', methods=['GET', 'POST'])
+def namedlist():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    if not 'name' in request.args:
+        return 'Missing name option, please add ie ?name=<name>'
+    listName  = request.args.get('name')
+    namedlist = ListAccessObject.ListAccessObject(db, listName)
+    if request.method == 'POST':
+        variable = request.form.get('list',None)
+        variable2 = request.form.get('item',None)
+        hiddenValue = request.form.get('to_delete',None)
+        hiddenList = request.form.get('list_name', None)
+        if hiddenValue is None:
+            namedlist.insert_item(variable, variable2)
+            
+        else:
+            if request.form.get('Completed', None) is not None:
+                archive.insert_item(hiddenList, hiddenValue)
+            elif request.form.get('Backlog', None) is not None:
+                backlog.insert_item(hiddenList, hiddenValue)
+            namedlist.delete_item(hiddenValue)
+            namedlist.delete_item(None)
+        tableValues = namedlist.find_items()
+        tableValues = sorted(tableValues, key=getList)
+        tableValues = add_time(tableValues)
+        
+        return render_template('checklist.html', name=listName, session=session, items=tableValues)
+    
+    tableValues = namedlist.find_items()
+    tableValues = sorted(tableValues, key=getList)
+    
+    tableValues = add_time(tableValues)
+
+    return render_template('checklist.html', name=listName, session=session, items=tableValues)
+
 @app.route('/checklist', methods=['GET', 'POST'])
 def add_item():
     if not current_user.is_authenticated:
@@ -159,13 +197,37 @@ def add_item():
         tableValues = sorted(tableValues, key=getList)
         tableValues = add_time(tableValues)
         
-        return render_template('checklist.html', session=session, items=tableValues)
+        return render_template('checklist.html', name='CheckList', session=session, items=tableValues)
+    
     tableValues = lists.find_items()
     tableValues = sorted(tableValues, key=getList)
     
     tableValues = add_time(tableValues)
 
-    return render_template('checklist.html', session=session, items=tableValues)
+    return render_template('checklist.html', name='CheckList', session=session, items=tableValues)
+
+@app.route('/addlist', methods=['GET', 'POST'])
+def add_list():
+    if not current_user.is_authenticated:
+        return redirect(url_for('login'))
+    if request.method == 'POST':
+        variable = request.form.get('list',None)
+        hiddenValue = request.form.get('to_delete',None)
+        hiddenList = request.form.get('list_name', None)
+        if hiddenValue is None:
+            list_names.insert_listname(variable)
+            
+        else:
+            # delete the list from the database
+            list_names.delete_listname(hiddenList)
+        tableValues = list_names.find_lists()
+        tableValues = sorted(tableValues, key=getList)
+        
+        return render_template('addlist.html', session=session, items=tableValues)
+    tableValues = list_names.find_lists()
+    tableValues = sorted(tableValues, key=getList)
+
+    return render_template('addlist.html', session=session, items=tableValues)
 
 def add_time(list_input):
     list_output = []
@@ -219,6 +281,10 @@ def logout():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(csrf_enabled=False)
+#    Work in progress
+#    user_id = request.cookies.get('SessionProdTools')
+#    if user_id:
+#        user = 
     if request.method == 'POST' and form.validate_on_submit():
         user = app.config['USERS_COLLECTION'].find_one({"_id": form.username.data})
         #user = MongoClient()['blog'].users.find_one({"_id": form.username.data})

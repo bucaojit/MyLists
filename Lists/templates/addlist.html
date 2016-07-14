@@ -2,7 +2,7 @@
 {% block title %}MyLists{% endblock %}
 <head>
 {% block head %}
-  <title>{{ name }}</title>
+  <title>Lists</title>
 <!--  {{ super() }}-->
 <link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
  
@@ -11,29 +11,21 @@
       {% block body %}
       <center>
       <div style="width:80%;text-align:left;">
-      <h1>{{ name }}</h1>
+      <h1>Lists</h1>
     
       <form action="" method="post">
          <table border="0">
             <tr>
                 <td>
-                    List: 
+                    Name: 
                 </td>
                 <td>
                     <input autofocus="autofocus" type=text name=list>
                 </td>
             </tr>
             <tr>
-                <td>
-                    Item: 
-                </td>
-                <td>
-                    <input type=text name=item>
-                </td>
-            </tr>
-            <tr>
             <td></td>
-                <td><input type=submit value=Submit></td>
+                <td><input type=submit value=Create></td>
             </tr>
          </table>
       </form>
@@ -41,31 +33,18 @@
       <table id="t01">
       	<tr>
       		<th> List </th>
-      		<th> Item </th>
-      		<th></th>
-      		<th></th>
+      		<th> </th>
       	</tr>
     
       	{% for item in items %}
       	<tr>
       		<td>
-      			{{ item.list }}
+      			<a href="{{ url_for('namedlist') + '?name='+ item.list }}">{{ item.list }}</a>
       		</td>
-      		<td>
-      			<a style="text-decoration:none" href={{item.item}}>
-      				{{item.item}}
-      			</a>
-      		</td>
-                    <td>
-                            {{ item.datetime }}
-      		</td>
-     
       		<td>
       			<form action="" method="post">
-      				<input type=hidden value="{{item.item}}" name="to_delete" />
-      				<input type=hidden value="{{item.list}}" name="list_name" />
-      				<input type=submit name="Completed" value=Completed />
-      				<input type=submit name="Backlog" value=BackLog />
+                                <input type=hidden value="{{item.item}}" name="to_delete" />
+                                <input type=hidden value="{{item.list}}" name="list_name" />
       				<input type=submit name="X" value=X>
       			</form>
       		</td>
