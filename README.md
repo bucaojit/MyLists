@@ -1,5 +1,8 @@
 # ProductivityTools
-Tools that use a database/webserver to store work related tasks and data
+Tools to store and search for information.  
+Components used: MongoDB, Apache Webserver
+Cache - Personal Search - Store and search reference data
+Checklist - Named lists - ToDo lists
 
 ### Cache - Store links and information that can be retrieved using full text search
 ***
